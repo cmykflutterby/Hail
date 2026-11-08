@@ -1,0 +1,32 @@
+[build]
+target-dir = "_local\\target"
+rustc = "_local\\rustup\\toolchains\\1.95.0-x86_64-pc-windows-gnu\\bin\\rustc.exe"
+rustdoc = "_local\\rustup\\toolchains\\1.95.0-x86_64-pc-windows-gnu\\bin\\rustdoc.exe"
+
+[target.x86_64-pc-windows-gnu]
+linker = "_local\\linkers\\x86_64-pc-windows-gnu.cmd"
+rustflags = ["-C", "target-feature=+crt-static"]
+
+[target.aarch64-pc-windows-gnullvm]
+linker = "_local\\tools\\llvm-mingw-20261104-ucrt-x86_64\\bin\\aarch64-w64-mingw32-clang.exe"
+rustflags = ["-C", "target-feature=+crt-static"]
+
+[target.x86_64-unknown-linux-gnu]
+linker = "_local\\linkers\\x86_64-unknown-linux-gnu.cmd"
+
+[target.aarch64-unknown-linux-gnu]
+linker = "_local\\linkers\\aarch64-unknown-linux-gnu.cmd"
+
+[source.crates-io]
+replace-with = "vendored-sources"
+
+[source.vendored-sources]
+directory = "vendor\\crates"
+
+[env]
+TEMP = { value = "_local\\tmp", relative = true, force = true }
+TMP = { value = "_local\\tmp", relative = true, force = true }
+ZIG_GLOBAL_CACHE_DIR = { value = "_local\\zig-cache", relative = true, force = true }
+ZIG_LOCAL_CACHE_DIR = { value = "_local\\zig-local-cache", relative = true, force = true }
+CARGO_ZIGBUILD_CACHE_DIR = { value = "_local\\zigbuild-cache", relative = true, force = true }
+CARGO_ZIGBUILD_ZIG_COMMAND = { value = "_local\\tools\\zig-x86_64-windows-0.15.2\\zig.exe", relative = true, force = true }

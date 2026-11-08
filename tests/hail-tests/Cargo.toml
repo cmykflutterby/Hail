@@ -1,0 +1,34 @@
+[package]
+name = "hail-tests"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+autotests = false
+autobenches = false
+
+[[bin]]
+name = "hail-tests"
+path = "src/main.rs"
+test = false
+bench = false
+
+[dependencies]
+hail = { path = "../../source/hail" }
+anyhow.workspace = true
+serde_json.workspace = true
+rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+libc = "0.2"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows-sys = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_Graphics_Gdi",
+    "Win32_Security",
+    "Win32_Storage_FileSystem",
+    "Win32_System_IO",
+    "Win32_System_LibraryLoader",
+    "Win32_System_Pipes",
+    "Win32_UI_WindowsAndMessaging",
+] }

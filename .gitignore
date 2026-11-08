@@ -1,0 +1,6 @@
+/_local/
+/drops/
+/vendor/
+/target/
+**/*.rs.bk
+/design-docs/

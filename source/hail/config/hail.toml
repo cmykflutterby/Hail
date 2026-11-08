@@ -1,0 +1,255 @@
+# HAIL service configuration (TOML).
+#
+# Hardware Abstraction/Integration Layer
+#
+# hail reads this file from beside its executable unless --config <file> is given.
+# Changes are applied when hail (or its service) restarts; check them first with
+# hail --check-config. Windows only: started with --watch-config (or installed
+# with --install --watch-config), hail checks this file every 2 seconds and an
+# edited file replaces the running configuration only if it is valid (otherwise
+# the running configuration is kept and the rejection is logged).
+
+[service]
+# Set to false to write no log file (log.write and [debug] entries are dropped).
+logging = true
+# Plain file name. The log is written beside the hail executable, or to the OS
+# temporary directory when that location is unwritable or on a USB volume.
+# hail never writes to a detected USB drive.
+# Time tokens start a new file whenever the name changes, e.g. one per day:
+#   log_file = "hail-{date}.log"
+# Tokens: {year} {month} {day} {hour} {minute} {date} (YYYY-MM-DD)
+#         {week} {week_year} (ISO 8601 week) {weekday} (mon..sun)
+log_file = "hail.log.txt"
+# Clock for the tokens above: "local" (default) or "utc".
+log_time = "local"
+# Where [emulators] executables are started:
+#   "user"     (default) In the logged-in user's desktop session, so the emulator
+#              window appears on their screen. When hail runs as a service
+#              (Windows service in session 0, or root under systemd) it starts the
+#              emulator as the user of the active desktop session; if nobody is
+#              logged in, the launch is skipped and logged. When hail already runs
+#              in a user's session it starts the emulator there.
+#   "service"  In hail's own session and account (no visible window when hail
+#              runs as a service).
+emulator_session = "user"
+# Which emulators a disk's hail.cfg may define itself (emulator.custom = true,
+# emulator.name, emulator.path, emulator.args) instead of using [emulators]:
+#   "none"     No custom emulators.
+#   "defined"  (default) Only executables already listed in [emulators]; the
+#              disk may choose its own args but cannot run anything new.
+#   "disk"     Only executables stored on the inserted disk itself.
+#   "any"      Any executable on the host or the disk.
+# Disk-provided emulators run as the logged-in user with emulator_session =
+# "user"; with "service" they would run as SYSTEM/root.
+# emulator.path.<os>.<arch> (windows/linux, x64/arm64) lets one disk carry an
+# emulator for each kind of host; the entry for this host is used.
+custom_emulators = "defined"
+# Programs hail starts (automount, emulator.launch, process.run) are tracked
+# until they exit. With stop_on_remove = true (default), the ones a disk's
+# usb.inserted chain started are stopped when that disk is removed (before the
+# usb.removed chain runs). Actions can override it with their own
+# stop_on_remove. Programs still running when hail exits (hail.quit,
+# hail.restart, a service stop, Ctrl+C, SIGTERM, ...) are stopped then.
+stop_on_remove = true
+# Stopping first asks the program to close (Windows: WM_CLOSE to its windows;
+# Linux: SIGTERM) and kills it if it is still running after this many
+# milliseconds (100 - 60000, default 5000).
+stop_timeout_ms = 5000
+
+[polling]
+# What is watched. Supported: "usb-volumes" (mounted USB mass-storage volumes).
+type = "usb-volumes"
+# How changes are detected. Either way hail runs until it is stopped/killed.
+#   "os-events"  Sleep until the OS reports a hardware or mount change, then
+#                rescan. Windows: Configuration Manager volume arrival/removal
+#                notifications. Linux: kernel block-device uevents plus
+#                mount-table change notifications. No timer polling.
+#   "interval"   Rescan every interval_ms milliseconds.
+mode = "os-events"
+# os-events only: delay (50 - 60000 ms, default 500) before rescanning after an
+# OS notification; hail rescans 3 times this far apart because volumes are
+# usually mounted / given a drive letter shortly after the device appears.
+settle_ms = 500
+# interval only (100 - 3600000 ms); remove settle_ms when using it.
+# interval_ms = 1000
+
+[emulator]
+# Emulator whose handler carries out the emulator.* actions. Supported: "snow".
+# Optional; without it, configuring any emulator.* action is an error.
+type = "snow"
+
+[emulators]
+# Short names for emulator executables: <ShortName> = "<full path to executable>".
+# A disk's hail.cfg names one to open its image with that emulator, e.g.
+#   emulator = "SNES"
+#   image = "games/chrono.sfc"
+# hail.cfg files without an emulator key use the [emulator] handler above.
+# Short names are 1-32 letters, digits, - or _, and are matched ignoring case.
+# A blank path leaves the entry unset (a hail.cfg that names it is skipped and
+# logged). Non-blank paths must be absolute; add your own names as needed.
+# The Snow entry refers to the [emulator] "snow" handler. Any other emulator is
+# started as "<executable>" "<image>" (in the executable's folder) and logged.
+# To pass other arguments, use a table with args; {image} is the image path and
+# {savefile} the hail.cfg savefile (arguments using {savefile} are left out when
+# the disk has none). The started emulator also gets HAIL_IMAGE and HAIL_SAVEFILE
+# environment variables (HAIL_SAVEFILE is empty without a savefile), e.g.:
+#   SNES = { path = "C:\\RetroArch\\retroarch.exe", args = ["-L", "cores\\snes9x_libretro.dll", "--save={savefile}", "{image}"] }
+# A hail.cfg with mode = "writeback" can then name the battery save file:
+#   emulator = "SNES"
+#   image = "Chrono Trigger.sfc"
+#   mode = "writeback"
+#   savefile = "Saves/Chrono Trigger.srm"
+Snow = ""          # Apple Macintosh (Snow), e.g. "C:\\Emulators\\Snow\\snow.exe"
+NES = ""           # Nintendo Entertainment System / Famicom
+SNES = ""          # Super Nintendo / Super Famicom
+N64 = ""           # Nintendo 64
+GameCube = ""      # Nintendo GameCube
+Wii = ""           # Nintendo Wii
+GB = ""            # Game Boy
+GBC = ""           # Game Boy Color
+GBA = ""           # Game Boy Advance
+NDS = ""           # Nintendo DS
+MasterSystem = ""  # Sega Master System
+Genesis = ""       # Sega Genesis / Mega Drive
+SegaCD = ""        # Sega CD / Mega-CD
+GameGear = ""      # Sega Game Gear
+Saturn = ""        # Sega Saturn
+Dreamcast = ""     # Sega Dreamcast
+PS1 = ""           # Sony PlayStation
+PS2 = ""           # Sony PlayStation 2
+PSP = ""           # Sony PlayStation Portable
+Atari2600 = ""     # Atari 2600
+Atari7800 = ""     # Atari 7800
+Lynx = ""          # Atari Lynx
+Jaguar = ""        # Atari Jaguar
+PCEngine = ""      # NEC PC Engine / TurboGrafx-16
+NeoGeo = ""        # SNK Neo Geo
+3DO = ""           # Panasonic 3DO
+ColecoVision = ""  # ColecoVision
+Intellivision = "" # Mattel Intellivision
+Vectrex = ""       # GCE Vectrex
+MAME = ""          # Arcade (MAME)
+AppleII = ""       # Apple II
+C64 = ""           # Commodore 64
+Amiga = ""         # Commodore Amiga
+AtariST = ""       # Atari ST
+MSX = ""           # MSX
+ZXSpectrum = ""    # Sinclair ZX Spectrum
+AmstradCPC = ""    # Amstrad CPC
+DOS = ""           # MS-DOS PC (e.g. DOSBox)
+
+# [apis.<name>]: HTTP(S) services for api.call actions. Example:
+#   [apis.frontend]
+#   url = "http://127.0.0.1:8080/api"      # required, http:// or https://
+#   timeout_ms = 10000                     # 100 - 300000, default 10000
+#   headers = { Authorization = "Bearer change-me" }
+#   ca_file = "C:\\HAIL\\private-ca.pem"   # optional: trust ONLY these CAs
+#
+# [rpc.<name>]: JSON-RPC 2.0 listeners for rpc.call actions. One of:
+#   [rpc.snow]
+#   transport = "local"                    # named pipe / Unix socket
+#   path = '\\.\pipe\snow-rpc'             # Linux: "/run/snow/rpc.sock"
+#   [rpc.frontend]
+#   transport = "tcp"
+#   address = "127.0.0.1:7600"             # host:port
+#   [rpc.web]
+#   transport = "http"                     # POST to url (also headers, ca_file)
+#   url = "http://127.0.0.1:8080/rpc"
+# Each also takes timeout_ms (100 - 300000, default 5000). Requests are one
+# line of JSON; tcp/local listeners answer with one line (see README.md).
+
+# Action chains: [[events."<event>"]] entries run in the order listed.
+#
+# Events and the placeholders their actions may use:
+#   service.started  {event} {timestamp} {version} {config} {mode} {emulator}
+#   usb.inserted     {event} {timestamp} {device} {label} {mount_point}
+#                    {hail_cfg} {images}
+#   usb.removed      {event} {timestamp} {device} {label} {mount_point}
+#   polling.failed   {event} {timestamp} {error}
+# Volumes already mounted when hail starts are reported as usb.inserted.
+# Before usb.inserted runs, hail scans the volume root (read-only) and tracks
+# the disk in memory until it is removed:
+#   {hail_cfg}  "absent", "found" or "invalid" - the disk's hail.cfg file
+#   {images}    number of mountable disk images in the volume root
+#               (floppy, hard disk and CD-ROM: .iso .toast .cue)
+#
+# Actions:
+#   log.write           message = "<template>"  Appends the rendered message and a
+#                       newline to the service log. Use {{ and }} for braces.
+#   emulator.automount  usb.inserted only. Mounts what the disk's hail.cfg asks for
+#                       in the emulator (currently a stub that writes a [debug]
+#                       log entry describing the mount call).
+#   emulator.start      Starts the [emulator] (no-op if it is already running).
+#   emulator.stop       Without emulator = "...": stops the [emulator] (no-op if
+#                       it is not running). emulator.start/stop of the [emulator]
+#                       are currently stubs that write a [debug] log entry.
+#                       With emulator = "<name>" ("*" = all): stops the emulators
+#                       hail started under that name.
+#                       Example: start the emulator once hail is up:
+#                         [[events."service.started"]]
+#                         action = "emulator.start"
+#   emulator.launch     Starts and tracks an emulator:
+#                         emulator = "SNES"           ([emulators] entry), or
+#                         emulator = { custom = true, name = "MyEmu",
+#                                      path = "C:\\Emu\\emu.exe", args = ["{image}"] }
+#                       path may be per platform: path = { windows = { x64 =
+#                       "C:\\Emu\\emu.exe" }, linux = { arm64 = "/opt/emu/emu" } }
+#                       Optional: image, savefile (full paths, placeholders
+#                       allowed), single (default true: not started twice),
+#                       stop_on_remove, on_error.
+#   process.run         Starts any program: command = "<full path>", args = [...],
+#                       name (default: file name), session ("user"/"service"),
+#                       wait (default false; true waits, exit code 0 = success),
+#                       timeout_ms (with wait; default 30000, then killed),
+#                       single, stop_on_remove, on_error. Started programs get
+#                       every placeholder as HAIL_<NAME> environment variables.
+#   process.stop        name = "<name>" ("*" = all): stops programs process.run
+#                       started.
+#   (process_run and process_stop are accepted as the same actions.)
+#   api.call            api = "<[apis] name>", method (GET default, POST with a
+#                       body; PUT, PATCH, DELETE), path = "/..." (values
+#                       URL-encoded), json = { ... } or body = "..." with
+#                       content_type, headers, on_error. HTTP 400+ is a failure.
+#   rpc.call            rpc = "<[rpc] name>", method = "...", params = { ... } or
+#                       [ ... ], notify (true: no id, no response), on_error.
+#                       A JSON-RPC error response is a failure.
+#   on_error            For emulator.launch, process.run, api.call, rpc.call:
+#                       "continue" (default), "stop" (skip the rest of the
+#                       chain) or "fail" (exit hail with code 1). Failures are
+#                       always logged.
+#   hail.quit           Stops the chain and exits hail with code 0.
+#   hail.restart        Stops the chain and exits hail with code 75 so the
+#                       service manager starts it again.
+
+[[events."service.started"]]
+action = "log.write"
+message = "{timestamp} HAIL {version} started (config: {config}, mode: {mode}, emulator: {emulator})"
+
+[[events."usb.inserted"]]
+action = "log.write"
+message = """
+{timestamp} Device Connected!
+---
+Device: {device}
+Label: {label}
+Mount point: {mount_point}
+hail.cfg: {hail_cfg}
+Disk images: {images}
+---"""
+
+[[events."usb.inserted"]]
+action = "emulator.automount"
+
+[[events."usb.removed"]]
+action = "log.write"
+message = """
+{timestamp} Device Disconnected!
+---
+Device: {device}
+Label: {label}
+Mount point: {mount_point}
+---"""
+
+[[events."polling.failed"]]
+action = "log.write"
+message = "{timestamp} USB polling failed: {error}"
