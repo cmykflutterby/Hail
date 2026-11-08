@@ -74,7 +74,9 @@ if (!(Test-Path (Join-Path $env:CARGO_HOME 'bin\rustup.exe'))) {
     if (!(Test-Path $rustupInit)) {
         Invoke-WebRequest -Uri 'https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-gnu/rustup-init.exe' -OutFile $rustupInit
     }
-    $checksumText = [string](Invoke-WebRequest -Uri 'https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-gnu/rustup-init.exe.sha256').Content
+    $checksumFile = Join-Path $local 'downloads\rustup-init.exe.sha256'
+    Invoke-WebRequest -Uri 'https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-gnu/rustup-init.exe.sha256' -OutFile $checksumFile
+    $checksumText = Get-Content -LiteralPath $checksumFile -Raw
     $expectedHash = [regex]::Match($checksumText, '[a-fA-F0-9]{64}').Value.ToLowerInvariant()
     $actualHash = (Get-FileHash $rustupInit -Algorithm SHA256).Hash.ToLowerInvariant()
     if (!$expectedHash -or $actualHash -ne $expectedHash) {
