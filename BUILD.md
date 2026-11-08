@@ -22,6 +22,20 @@ It is idempotent. Initial setup downloads several hundred MB and requires
 internet access. Subsequent builds use locked, vendored dependencies offline.
 Do not run concurrent builds or empty `_local` while a build is running.
 
+## GitHub Actions release
+
+The manual **Build release** workflow runs on a Windows runner. It initializes
+the pinned Rust toolchain, cross-compilers, Zig tools and Cargo crate vendor
+directory, then builds all Windows/Linux x64/arm64 Release packages. The CI
+initializer intentionally does **not** clone `vendor/snow`: that checkout is a
+pinned code reference and provenance input for the local initializer, not a
+compile dependency.
+
+Trigger it from the Actions tab with a release tag matching the workspace
+version, such as `v0.1.0`. The workflow uploads the packages as a workflow
+artifact and creates a draft GitHub release for human review; it does not
+publish the release automatically.
+
 ## Layout and ownership
 
 | Path | Purpose | Git |

@@ -1,0 +1,49 @@
+name: Build release
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: Optional tag or ref to build instead of the latest main
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Compile and package release
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_ref || 'main' }}
+          fetch-depth: 0
+
+      - name: Initialize compile prerequisites
+        shell: pwsh
+        run: .\build\Initialize-GitHubActions.ps1
+
+      - name: Build all release packages
+        shell: pwsh
+        run: .\build.ps1 -Build -Platform All -Architecture All -Configuration Release
+
+      - name: Upload packages to workflow run
+        uses: actions/upload-artifact@v4
+        with:
+          name: hail-release-packages
+          path: drops/*
+          if-no-files-found: error
+
+      - name: Create draft release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = (Get-Content .\Cargo.toml -Raw | Select-String -Pattern '^\s*version\s*=\s*"([^"]+)"' -AllMatches).Matches[0].Groups[1].Value
+          $releaseTag = "v$version"
+          $assets = @(Get-ChildItem .\drops -File | ForEach-Object FullName)
+          if ($assets.Count -eq 0) { throw 'No release packages were produced.' }
+          gh release create $releaseTag --target $env:GITHUB_SHA --draft --title "Hail $releaseTag" --generate-notes @assets
