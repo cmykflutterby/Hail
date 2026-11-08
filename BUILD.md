@@ -31,10 +31,18 @@ initializer intentionally does **not** clone `vendor/snow`: that checkout is a
 pinned code reference and provenance input for the local initializer, not a
 compile dependency.
 
-Trigger it from the Actions tab with a release tag matching the workspace
-version, such as `v0.1.0`. The workflow uploads the packages as a workflow
+Trigger it from the Actions tab with a release tag matching the product
+version, such as `v<version>`. The workflow uploads the packages as a workflow
 artifact and creates a draft GitHub release for human review; it does not
 publish the release automatically.
+
+The authoritative product version is the workspace `version` in
+[`Cargo.toml`](Cargo.toml). The prominent `VERSION` constant in
+[`source/hail/src/version.rs`](source/hail/src/version.rs) exposes
+`env!("CARGO_PKG_VERSION")`, so package names, runtime `--version` output,
+service events, tests, and release tags all use the same Cargo value. Update
+the Cargo workspace version when preparing a release; no build step mutates
+the manifest or lock file.
 
 ## Layout and ownership
 
@@ -191,10 +199,10 @@ and `.tar.gz` for Linux, plus a `.sha256` sidecar:
 
 | Package | Runs on |
 |---|---|
-| `hail-0.1.0-windows-x64-<cfg>.zip` | 64-bit Intel/AMD Windows |
-| `hail-0.1.0-windows-arm64-<cfg>.zip` | ARM64 Windows |
-| `hail-0.1.0-linux-x64-<cfg>.tar.gz` | 64-bit Intel/AMD Linux, glibc 2.28+ |
-| `hail-0.1.0-linux-arm64-<cfg>.tar.gz` | 64-bit ARM Linux, including 64-bit Raspberry Pi OS on Pi 4/5 |
+| `hail-<version>-windows-x64-<cfg>.zip` | 64-bit Intel/AMD Windows |
+| `hail-<version>-windows-arm64-<cfg>.zip` | ARM64 Windows |
+| `hail-<version>-linux-x64-<cfg>.tar.gz` | 64-bit Intel/AMD Linux, glibc 2.28+ |
+| `hail-<version>-linux-arm64-<cfg>.tar.gz` | 64-bit ARM Linux, including 64-bit Raspberry Pi OS on Pi 4/5 |
 
 Each archive holds one `hail-<...>/` folder containing **only** the release
 payload: `hail` (`hail.exe` on Windows; mode 0755 in tar archives), the

@@ -10,6 +10,7 @@ use crate::media::{scan_volume, MountPlan, TrackedDisk};
 use crate::process::{ProcessKind, ProcessTable, TrackedProcess};
 use crate::remote::{api_call, rpc_call};
 use crate::watch::{ChangeSource, RescanSchedule};
+use crate::VERSION;
 use anyhow::{anyhow, bail, Context, Result};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -385,7 +386,7 @@ impl Service {
             EventKind::ServiceStarted,
             utc_timestamp(SystemTime::now()),
             &[
-                ("version", env!("CARGO_PKG_VERSION").to_string()),
+                ("version", VERSION.to_string()),
                 ("config", config_path.display().to_string()),
                 ("mode", self.config.polling.mode.name().to_string()),
                 (

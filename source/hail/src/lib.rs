@@ -9,6 +9,7 @@ pub mod process;
 pub mod remote;
 pub mod service;
 pub mod template;
+pub mod version;
 pub mod watch;
 #[cfg(windows)]
 pub mod winservice;
@@ -45,6 +46,7 @@ pub use template::Template;
 pub use watch::{ChangeSource, OsEventSource, RescanSchedule};
 
 pub const DEFAULT_CONFIG_NAME: &str = "hail.toml";
+pub use version::VERSION;
 
 #[cfg(not(any(target_os = "windows", target_os = "linux")))]
 compile_error!("hail supports Windows and Linux only");

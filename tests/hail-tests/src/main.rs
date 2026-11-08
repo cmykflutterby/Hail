@@ -340,7 +340,7 @@ message = "{event}: {error}"
     drop(service);
     let expected = format!(
         "service.started {}\nfirst stick {}\nsecond dev-stick\npolling.failed: bus offline\n",
-        env!("CARGO_PKG_VERSION"),
+        hail::VERSION,
         volume.mount_point.display()
     );
     let contents = fs::read_to_string(&path)?;
@@ -2436,8 +2436,7 @@ fn executable(context: &TestContext) -> Result<()> {
     let version = run_app(&app, &["--version"])?;
     ensure!(
         version.status.success()
-            && String::from_utf8(version.stdout)?.trim()
-                == format!("hail {}", env!("CARGO_PKG_VERSION")),
+            && String::from_utf8(version.stdout)?.trim() == format!("hail {}", hail::VERSION),
         "--version failed"
     );
     let invalid = run_app(&app, &["--bogus"])?;

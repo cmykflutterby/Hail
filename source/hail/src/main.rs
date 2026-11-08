@@ -1,7 +1,7 @@
 use anyhow::{bail, Context, Result};
 use hail::{
     discover_usb_volumes, utc_timestamp, ChangeSource, Config, Event, EventLog, Exit, LogName,
-    Mode, OsEventSource, Service, DEFAULT_CONFIG_NAME, EXIT_FAILURE, EXIT_QUIT,
+    Mode, OsEventSource, Service, DEFAULT_CONFIG_NAME, EXIT_FAILURE, EXIT_QUIT, VERSION,
 };
 use std::path::{Path, PathBuf};
 use std::sync::atomic::AtomicBool;
@@ -79,7 +79,7 @@ fn parse_options() -> Result<Option<Options>> {
                 return Ok(None);
             }
             Some("--version") => {
-                println!("hail {}", env!("CARGO_PKG_VERSION"));
+                println!("hail {VERSION}");
                 return Ok(None);
             }
             Some("--config") if options.config.is_none() => {

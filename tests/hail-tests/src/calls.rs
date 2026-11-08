@@ -736,7 +736,7 @@ pub fn process_tracking(context: &TestContext) -> Result<()> {
             "HAIL_EVENT=service.started\n".into(),
             "HAIL_IMAGE=\n".into(),
             "HAIL_SAVEFILE=\n".into(),
-            format!("HAIL_VERSION={}\n", env!("CARGO_PKG_VERSION")),
+            format!("HAIL_VERSION={}\n", hail::VERSION),
         ],
         "emulator.launch arguments/environment",
     )?;
