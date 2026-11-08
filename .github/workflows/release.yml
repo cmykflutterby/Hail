@@ -42,7 +42,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $version = (Get-Content .\Cargo.toml -Raw | Select-String -Pattern '^\s*version\s*=\s*"([^"]+)"' -AllMatches).Matches[0].Groups[1].Value
+          $cargoToml = Get-Content .\Cargo.toml -Raw
+          $versionMatch = [regex]::Match($cargoToml, '(?m)^\s*version\s*=\s*"([^"]+)"')
+          if (!$versionMatch.Success) { throw 'Could not read the workspace version from Cargo.toml.' }
+          $version = $versionMatch.Groups[1].Value
           $releaseTag = "v$version"
           $assets = @(Get-ChildItem .\drops -File | ForEach-Object FullName)
           if ($assets.Count -eq 0) { throw 'No release packages were produced.' }
