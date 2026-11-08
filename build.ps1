@@ -57,8 +57,10 @@ try {
     if ($Platform -notin $validPlatforms) { throw "-Platform '$Platform' is invalid." }
     if ($Architecture -notin $validArchitectures) { throw "-Architecture '$Architecture' is invalid." }
     if ($Configuration -notin $validConfigurations) { throw "-Configuration '$Configuration' is invalid." }
-    [string[]]$invalidCleanModes = if ($Clean) { @($Clean | Where-Object { $_ -notin $validCleanModes }) } else { @() }
-    if (@($invalidCleanModes).Count -gt 0) { throw "-Clean mode '$($invalidCleanModes -join "', '")' is invalid." }
+    if ($Clean) {
+        $invalidCleanModes = @($Clean | Where-Object { $_ -notin $validCleanModes })
+        if ($invalidCleanModes) { throw "-Clean mode '$($invalidCleanModes -join "', '")' is invalid." }
+    }
     if (!$Init -and !$Build -and !$Test -and !$Clean) {
         Show-BuildUsage
         $showUsageOnError = $false
