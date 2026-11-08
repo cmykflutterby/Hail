@@ -194,7 +194,7 @@ pub struct Config {
     /// The log file name to use; `None` when `[service] logging = false`.
     pub log: Option<LogName>,
     pub polling: Polling,
-    /// [emulator] type; required when any mulator.* action is configured.
+    /// [emulator] type; required when any emulator.* action is configured.
     pub emulator: Option<EmulatorKind>,
     /// [emulators]: short names for emulator executables, referenced by hail.cfg `emulator`.
     pub emulators: Emulators,

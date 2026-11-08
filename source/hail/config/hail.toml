@@ -12,6 +12,9 @@
 [service]
 # Set to false to write no log file (log.write and [debug] entries are dropped).
 logging = true
+
+# Log File
+#
 # Plain file name. The log is written beside the hail executable, or to the OS
 # temporary directory when that location is unwritable or on a USB volume.
 # hail never writes to a detected USB drive.
@@ -20,8 +23,14 @@ logging = true
 # Tokens: {year} {month} {day} {hour} {minute} {date} (YYYY-MM-DD)
 #         {week} {week_year} (ISO 8601 week) {weekday} (mon..sun)
 log_file = "hail.log.txt"
+
+# Log Timezone
+#
 # Clock for the tokens above: "local" (default) or "utc".
 log_time = "local"
+
+# Launch User
+#
 # Where [emulators] executables are started:
 #   "user"     (default) In the logged-in user's desktop session, so the emulator
 #              window appears on their screen. When hail runs as a service
@@ -32,6 +41,9 @@ log_time = "local"
 #   "service"  In hail's own session and account (no visible window when hail
 #              runs as a service).
 emulator_session = "user"
+
+# Allowed Emulators
+#
 # Which emulators a disk's hail.cfg may define itself (emulator.custom = true,
 # emulator.name, emulator.path, emulator.args) instead of using [emulators]:
 #   "none"     No custom emulators.
@@ -44,6 +56,9 @@ emulator_session = "user"
 # emulator.path.<os>.<arch> (windows/linux, x64/arm64) lets one disk carry an
 # emulator for each kind of host; the entry for this host is used.
 custom_emulators = "defined"
+
+# Autostop
+#
 # Programs hail starts (automount, emulator.launch, process.run) are tracked
 # until they exit. With stop_on_remove = true (default), the ones a disk's
 # usb.inserted chain started are stopped when that disk is removed (before the
@@ -51,6 +66,9 @@ custom_emulators = "defined"
 # stop_on_remove. Programs still running when hail exits (hail.quit,
 # hail.restart, a service stop, Ctrl+C, SIGTERM, ...) are stopped then.
 stop_on_remove = true
+
+# Autostop timeout
+#
 # Stopping first asks the program to close (Windows: WM_CLOSE to its windows;
 # Linux: SIGTERM) and kills it if it is still running after this many
 # milliseconds (100 - 60000, default 5000).
@@ -59,6 +77,9 @@ stop_timeout_ms = 5000
 [polling]
 # What is watched. Supported: "usb-volumes" (mounted USB mass-storage volumes).
 type = "usb-volumes"
+
+# Polling Mechanism
+#
 # How changes are detected. Either way hail runs until it is stopped/killed.
 #   "os-events"  Sleep until the OS reports a hardware or mount change, then
 #                rescan. Windows: Configuration Manager volume arrival/removal
@@ -66,13 +87,21 @@ type = "usb-volumes"
 #                mount-table change notifications. No timer polling.
 #   "interval"   Rescan every interval_ms milliseconds.
 mode = "os-events"
+
+# Polling OS delay
+#
 # os-events only: delay (50 - 60000 ms, default 500) before rescanning after an
 # OS notification; hail rescans 3 times this far apart because volumes are
 # usually mounted / given a drive letter shortly after the device appears.
 settle_ms = 500
+
+# Polling Interval
+#
 # interval only (100 - 3600000 ms); remove settle_ms when using it.
 # interval_ms = 1000
 
+# Default Emulator Handler
+#
 [emulator]
 # Emulator whose handler carries out the emulator.* actions. Supported: "snow".
 # Optional; without it, configuring any emulator.* action is an error.

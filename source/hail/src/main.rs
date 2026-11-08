@@ -9,7 +9,7 @@ use std::sync::Arc;
 use std::time::SystemTime;
 
 const USAGE: &str = "\
-hail - HAIL host integration service for Snow emulator instances
+HAIL - Hardware Abstraction\\Integration Layer Service
 
 Usage:
   hail [--config <file>] [--once | --watch-config]

@@ -35,9 +35,9 @@ use windows_sys::Win32::System::Services::{
 
 /// Name the service is registered under (`sc.exe query HAIL`).
 pub const SERVICE_NAME: &str = "HAIL";
-pub const DISPLAY_NAME: &str = "HAIL Snow integration service";
+pub const DISPLAY_NAME: &str = "HAIL - Hardware Abstraction\\Integration Layer Service";
 const DESCRIPTION: &str =
-    "Watches USB storage and runs HAIL action chains for a Snow emulator instance.";
+    "Watches OS Events and runs HAIL configurable actions for supported emulator instances.";
 /// Restart delays after the 1st, 2nd and later failures; the count resets after a day.
 const RESTART_DELAYS_MS: [u32; 3] = [2_000, 2_000, 10_000];
 const FAILURE_RESET_SECONDS: u32 = 86_400;
