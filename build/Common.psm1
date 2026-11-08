@@ -428,13 +428,13 @@ function Resolve-BuildRequest {
     )
     $build = $Bound.ContainsKey('Build') -and [bool]$Bound['Build']
     $test = $Bound.ContainsKey('Test') -and [bool]$Bound['Test']
-    $selection = @('Platform', 'Architecture', 'Configuration').Where({ $Bound.ContainsKey($_) })
-    if ($selection.Count -gt 0 -and !($build -or $test)) {
+    $selection = @(@('Platform', 'Architecture', 'Configuration').Where({ $Bound.ContainsKey($_) }))
+    if (@($selection).Count -gt 0 -and !($build -or $test)) {
         throw "-$($selection -join ', -') only choose(s) targets and never build(s) on their own; add -Build (or -Test) to build."
     }
     $requested = $build -or $test
-    $actions = @('Init', 'Clean', 'Build', 'Test').Where({ $Bound.ContainsKey($_) })
-    if ($actions.Count -eq 0) {
+    $actions = @(@('Init', 'Clean', 'Build', 'Test').Where({ $Bound.ContainsKey($_) }))
+    if (@($actions).Count -eq 0) {
         Write-Host @"
 Nothing to do. $Script runs only the actions you ask for:
   -Init                      prepare toolchain, linkers and vendored sources (no build)

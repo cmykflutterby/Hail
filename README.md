@@ -241,7 +241,7 @@ above (or another mount without `showexec`).
    ```sh
    sudo tee /etc/systemd/system/hail.service >/dev/null <<'EOF'
    [Unit]
-   Description=HAIL Snow integration service
+   Description=HAIL - Emulator integration service
    After=local-fs.target
    # Give up after 5 failed starts within a minute (e.g. a broken hail.toml).
    StartLimitIntervalSec=60
